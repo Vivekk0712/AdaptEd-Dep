@@ -1,0 +1,98 @@
+/* OpenDyslexic Font Faces */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Italic.otf') format('opentype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-BoldItalic.otf') format('opentype');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Dyslexia Mode Active - Override ALL text elements */
+body.dyslexia-active {
+  background-color: #FAF9F6 !important;
+}
+
+body.dyslexia-active,
+body.dyslexia-active * {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  line-height: 2.0 !important;
+  letter-spacing: 0.15em !important;
+  word-spacing: 0.3em !important;
+}
+
+/* Preserve specific UI elements that shouldn't use dyslexic font */
+body.dyslexia-active button,
+body.dyslexia-active input,
+body.dyslexia-active select,
+body.dyslexia-active textarea {
+  line-height: 1.5 !important;
+}
+
+/* Preserve link visibility */
+body.dyslexia-active a {
+  text-decoration: underline !important;
+}
+
+/* Improve contrast for better readability */
+body.dyslexia-active {
+  color: #333333 !important;
+}
+
+/* Ensure code blocks remain readable */
+body.dyslexia-active pre,
+body.dyslexia-active code {
+  line-height: 1.8 !important;
+  letter-spacing: 0.1em !important;
+}
+
+/* Improve heading visibility */
+body.dyslexia-active h1,
+body.dyslexia-active h2,
+body.dyslexia-active h3,
+body.dyslexia-active h4,
+body.dyslexia-active h5,
+body.dyslexia-active h6 {
+  font-weight: bold !important;
+  margin-top: 1.5em !important;
+  margin-bottom: 0.75em !important;
+}
+
+/* Improve paragraph spacing */
+body.dyslexia-active p {
+  margin-bottom: 1.5em !important;
+}
+
+/* Improve list spacing */
+body.dyslexia-active ul,
+body.dyslexia-active ol {
+  margin-left: 2em !important;
+  margin-bottom: 1.5em !important;
+}
+
+body.dyslexia-active li {
+  margin-bottom: 0.75em !important;
+}
