@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 
 const CodeSandbox = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const MCP_IDE_URL = "http://localhost:5174"; // MCP-IDE frontend URL
+  // Use environment variable or fallback to localhost for development
+  const MCP_IDE_URL = import.meta.env.VITE_MCP_IDE_URL || "http://localhost:5174";
 
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
