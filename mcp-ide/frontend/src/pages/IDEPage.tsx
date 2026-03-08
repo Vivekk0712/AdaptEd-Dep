@@ -51,10 +51,8 @@ const IDEPage = () => {
   const [showFileDropdown, setShowFileDropdown] = useState(false)
   const [sessionId, setSessionId] = useState<string>('')
   const [currentFileId, setCurrentFileId] = useState<string>('')
-  const [currentProjectId, setCurrentProjectId] = useState<string>('00000000-0000-0000-0000-000000000001') // Default project
+  const [currentProjectId] = useState<string>('00000000-0000-0000-0000-000000000001') // Default project
   const [showTerminal, setShowTerminal] = useState(false)
-  const [isIndexing, setIsIndexing] = useState(false)
-  const [indexStatus, setIndexStatus] = useState<string>('')
   const [lastExecutionResult, setLastExecutionResult] = useState<{
     output: string
     error: string

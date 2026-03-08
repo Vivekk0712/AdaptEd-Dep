@@ -1,184 +1,181 @@
 # AdaptEd - Quick Start Guide
 
-## 🎯 What You Need
+## 🏗️ Architecture
 
-1. **AWS Account** with EC2 access
-2. **API Keys:**
-   - Gemini API (Google AI) - **REQUIRED**
-   - OpenAI API - **REQUIRED** (for Viva Voice)
-   - Groq API - **REQUIRED** (for Viva Voice)
-   - YouTube API - Optional
-   - Hugging Face API - Optional
-   - Firebase credentials - **REQUIRED**
-   - Supabase credentials - **REQUIRED** (for MCP-IDE)
-3. **Domain name** (optional, for HTTPS)
-
-📚 **See `ENV_SETUP_GUIDE.md` for detailed instructions on getting all API keys**
-
-## 🚀 5-Minute Local Setup
-
-### 0. Setup Environment Files (One-Time)
-```bash
-# Run the setup script to create .env files from templates
-bash setup-env.sh
-
-# Then edit each .env file with your API keys:
-# - backend/.env
-# - frontend/.env
-# - mcp-ide/backend/.env
+```
+Root Frontend (Port 5173) → Root Backend (Port 8001)
+     └─ embeds via iframe ─→ MCP-IDE Frontend (Port 5174) → MCP-IDE Backend (Port 8000)
 ```
 
-### 1. Copy Dyslexia Fonts
+## 🎯 What You Need
+
+**API Keys:**
+- Gemini API - **REQUIRED** (for both backends)
+- OpenAI API - **REQUIRED** (for Viva Voice)
+- Groq API - **REQUIRED** (for Viva Voice)
+- Firebase - **REQUIRED** (for authentication)
+- Supabase - **REQUIRED** (for MCP-IDE file storage)
+- YouTube API - Optional
+- Hugging Face API - Optional
+
+📚 **See `ENV_SETUP_GUIDE.md` for getting API keys**
+
+## 🚀 Local Development (4 Services)
+
+### Step 1: Setup Environment Files
+```bash
+bash setup-env.sh
+# Edit: backend/.env, frontend/.env, mcp-ide/backend/.env
+```
+
+### Step 2: Copy Dyslexia Fonts
 ```bash
 bash setup-fonts.sh
 ```
 
-### 2. Setup Main Backend
+### Step 3: Start Root Backend (Terminal 1)
 ```bash
 cd backend
 python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Make sure .env file has your API keys (from step 0)
-# Start backend
 python main.py
 ```
+✅ Running on http://localhost:8001
 
-### 3. Setup Main Frontend (New Terminal)
+### Step 4: Start Root Frontend (Terminal 2)
 ```bash
 cd frontend
 npm install
-
-# Make sure .env file has your Firebase config (from step 0)
-# Start frontend
 npm run dev
 ```
+✅ Running on http://localhost:5173
 
-### 4. Setup MCP-IDE Backend (New Terminal)
+### Step 5: Start MCP-IDE Backend (Terminal 3)
 ```bash
 cd mcp-ide/backend
 python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
-
-# Make sure .env file has your API keys (from step 0)
-# Start backend
 python main.py
 ```
+✅ Running on http://localhost:8000
 
-### 5. Setup MCP-IDE Frontend (New Terminal)
+### Step 6: Start MCP-IDE Frontend (Terminal 4)
 ```bash
 cd mcp-ide/frontend
 npm install
-
-# Start frontend
 npm run dev
 ```
+✅ Running on http://localhost:5174
 
-### 6. Test Application
-- Main App: http://localhost:5173
-- MCP-IDE: http://localhost:5174
-- Look for dyslexia toggle button (bottom-right)
-- Click to test dyslexia mode
+### Step 7: Test
+1. Open http://localhost:5173 (Root Frontend)
+2. Login/Signup
+3. Go to "Code Sandbox" page
+4. MCP-IDE should load in iframe
+5. Test dyslexia toggle (bottom-right)
+
+### Step 8: Test Production Builds
+```bash
+# Before deploying, test that everything builds
+bash test-build.sh
+```
+
+This will:
+- Check all .env files
+- Verify fonts are present
+- Build both frontends
+- Report any errors
+
+✅ **All tests pass?** You're ready to deploy!
 
 ## ☁️ AWS EC2 Deployment
 
-### Step 1: Launch EC2
-- Instance: t3.medium
+### Instance Requirements
+- Type: t3.medium (2 vCPU, 4 GB RAM)
 - OS: Ubuntu 22.04 LTS
 - Storage: 30 GB
-- Security Group: Ports 22, 80, 443, 8000
+- Ports: 22, 80, 443, 8000, 8001, 5174
 
-### Step 2: Connect & Install
+### Quick Deploy
 ```bash
+# On EC2
 ssh -i your-key.pem ubuntu@your-ec2-ip
 
-# Install everything
+# Install dependencies
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt update && sudo apt install -y nodejs python3.11 python3.11-venv python3-pip nginx git build-essential
 sudo npm install -g pm2
-```
 
-### Step 3: Deploy
-```bash
+# Clone and setup
 cd /home/ubuntu
-git clone <your-repo-url> adapted
+git clone <your-repo> adapted
 cd adapted
+bash setup-env.sh  # Then edit .env files
+bash setup-fonts.sh
 
-# Backend
+# Build and start root backend
 cd backend
-python3.11 -m venv venv
-source venv/bin/activate
+python3.11 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-# Upload your .env file here
-mkdir -p logs
 pm2 start ecosystem.config.js
-pm2 save
-pm2 startup  # Run the command it outputs
 
-# Frontend
+# Build root frontend
 cd ../frontend
-npm install
-# Upload your .env.production file here
-npm run build
+npm install && npm run build
 
-# Nginx
-cd ..
-sudo cp nginx.conf /etc/nginx/sites-available/adapted
-sudo ln -s /etc/nginx/sites-available/adapted /etc/nginx/sites-enabled/
-sudo rm /etc/nginx/sites-enabled/default
-sudo nginx -t
-sudo systemctl restart nginx
+# Build and start MCP-IDE backend
+cd ../mcp-ide/backend
+python3.11 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+pm2 start ecosystem.config.js
+
+# Build MCP-IDE frontend
+cd ../frontend
+npm install && npm run build
+
+# Configure Nginx (see DEPLOYMENT_GUIDE.md)
+pm2 save && pm2 startup
 ```
 
-### Step 4: Access
-Open: `http://your-ec2-public-ip`
+## 🔍 Service Status
+
+```bash
+# Check all services
+pm2 status
+
+# View logs
+pm2 logs adapted-backend
+pm2 logs mcp-ide-backend
+
+# Test endpoints
+curl http://localhost:8001/health  # Root backend
+curl http://localhost:8000/health  # MCP-IDE backend
+```
 
 ## 🎨 Dyslexia Mode
 
-### How to Use:
-1. Look for purple button in bottom-right corner
-2. Click "Dyslexia Mode" toggle
-3. Font changes to OpenDyslexic
-4. Reading ruler appears (follows mouse)
-5. Toggle off to return to normal
+- Purple button in bottom-right corner
+- Click to toggle OpenDyslexic font
+- Reading ruler follows mouse
+- Works across all pages
 
-### Features:
-- ✅ OpenDyslexic font
-- ✅ 2x line spacing
-- ✅ Increased letter/word spacing
-- ✅ Yellow reading ruler
-- ✅ Persistent across sessions
+## 📚 Full Documentation
 
-## 📊 Verify Deployment
+- **DEPLOYMENT_GUIDE.md** - Complete deployment instructions
+- **ENV_SETUP_GUIDE.md** - Environment variables guide
+- **COMPLETE_SETUP_SUMMARY.md** - Full overview
 
+## 💰 Cost
+
+**t3.medium:** ~$40-45/month
+
+## 🆘 Troubleshooting
+
+### Services not starting?
 ```bash
-# Check services
-pm2 status
-sudo systemctl status nginx
-
-# Check logs
-pm2 logs adapted-backend
-sudo tail -f /var/log/nginx/error.log
-
-# Test API
-curl http://localhost:8000/health
-```
-
-## 🔄 Update Application
-
-```bash
-cd /home/ubuntu/adapted
-git pull
-bash deploy.sh
-```
-
-## 🆘 Quick Troubleshooting
-
-### Backend not working?
-```bash
-pm2 logs adapted-backend --lines 50
+pm2 logs <service-name>
 ```
 
 ### Frontend not loading?
@@ -187,33 +184,11 @@ sudo nginx -t
 sudo tail -f /var/log/nginx/error.log
 ```
 
-### Dyslexia mode not working?
-```bash
-# Check fonts exist
-ls -la /home/ubuntu/adapted/frontend/dist/fonts/
-# If missing, run setup-fonts.sh and rebuild
-```
+### MCP-IDE not loading in iframe?
+- Check browser console
+- Verify port 5174 is accessible
+- Check CodeSandbox.tsx iframe URL
 
-## 📚 Full Documentation
+---
 
-- **Complete Guide:** `AWS_DEPLOYMENT_GUIDE.md`
-- **Checklist:** `DEPLOYMENT_CHECKLIST.md`
-- **Summary:** `DEPLOYMENT_SUMMARY.md`
-
-## 💰 Cost
-
-**t3.medium:** ~$40-45/month
-- EC2: $30
-- Storage: $3
-- Transfer: $5-10
-
-## 🎉 You're Done!
-
-Your application is now running with:
-- ✅ AI-powered learning platform
-- ✅ Dyslexia mode (embedded)
-- ✅ Production-ready deployment
-- ✅ Auto-restart on reboot
-- ✅ Nginx reverse proxy
-
-**Need help?** Check the full documentation files!
+**Need Help?** Check `DEPLOYMENT_GUIDE.md` for detailed instructions!

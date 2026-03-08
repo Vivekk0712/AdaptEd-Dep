@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Terminal as TerminalIcon, X, Send, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils'
 
 interface TerminalProps {
   projectId: string

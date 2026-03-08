@@ -35,7 +35,7 @@ interface FolderNode {
 }
 
 const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplorerProps) => {
-  const [projects, setProjects] = useState<Project[]>([])
+  const [_projects, setProjects] = useState<Project[]>([])  // Prefix with _ to indicate intentionally unused
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
   const [files, setFiles] = useState<FileItem[]>([])
   const [folderTree, setFolderTree] = useState<FolderNode | null>(null)
@@ -380,7 +380,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
   const handleRenameFile = async () => {
     if (!renameFileName || !renamingFile || !currentProject) return
 
-    const oldPath = renamingFile.path
+    // const oldPath = renamingFile.path  // Not currently used
     const parentFolder = renamingFile.parent_folder || '/'
     const newPath = parentFolder === '/' ? renameFileName : `${parentFolder}/${renameFileName}`
 
