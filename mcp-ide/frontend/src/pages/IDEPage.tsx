@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Editor, { OnMount } from '@monaco-editor/react'
 import type * as Monaco from 'monaco-editor'
 import { cn } from '@/lib/utils'
+import { API_ENDPOINTS } from '@/lib/api-config'
 import type { ChatMessage, EditorState } from '@/types/editor'
 import FileExplorer from '@/components/FileExplorer'
 import Terminal from '@/components/Terminal'
@@ -101,7 +102,7 @@ const IDEPage = () => {
 
     // Update session context in database
     if (sessionId) {
-      fetch('http://localhost:8000/api/v1/tutor/session/update-context', {
+      fetch(API_ENDPOINTS.tutorSessionUpdateContext(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -140,7 +141,7 @@ const IDEPage = () => {
     const initialLanguage = getLanguageFromFile(editorState.file_path)
 
     // Start a new session with correct language
-    fetch('http://localhost:8000/api/v1/tutor/session/start', {
+    fetch(API_ENDPOINTS.tutorSessionStart(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -168,7 +169,7 @@ const IDEPage = () => {
       })
 
     // Fetch available models
-    fetch('http://localhost:8000/api/v1/tutor/models')
+    fetch(API_ENDPOINTS.tutorModels())
       .then(res => res.json())
       .then(data => {
         setAvailableModels(data.models)
@@ -228,7 +229,7 @@ const IDEPage = () => {
     if (currentFileId) {
       try {
         console.log('📤 Sending PATCH request to database...')
-        const response = await fetch(`http://localhost:8000/api/v1/files/files/${currentFileId}`, {
+        const response = await fetch(API_ENDPOINTS.filesUpdate(currentFileId), {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content: code })
@@ -258,7 +259,7 @@ const IDEPage = () => {
 
     // Save current file in background (don't await)
     if (currentFileId && code) {
-      fetch(`http://localhost:8000/api/v1/files/files/${currentFileId}`, {
+      fetch(API_ENDPOINTS.filesUpdate(currentFileId), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: code })
@@ -294,7 +295,7 @@ const IDEPage = () => {
     }
 
     // Fetch latest content in background and update if different
-    fetch(`http://localhost:8000/api/v1/files/files/${file.id}`)
+    fetch(API_ENDPOINTS.filesGet(file.id))
       .then(res => res.json())
       .then(latestFile => {
         if (latestFile.content !== file.content) {
@@ -322,7 +323,7 @@ const IDEPage = () => {
     }
 
     // Mark as active in database
-    fetch(`http://localhost:8000/api/v1/files/files/${file.id}/activate?project_id=${file.project_id}`, {
+    fetch(API_ENDPOINTS.filesActivate(file.id, file.project_id), {
       method: 'POST'
     }).catch(err => console.error('Failed to activate file:', err))
   }
@@ -350,7 +351,7 @@ const IDEPage = () => {
     if (currentFileId && !isSaved) {
       console.log('💾 Saving file before execution...')
       try {
-        const saveResponse = await fetch(`http://localhost:8000/api/v1/files/files/${currentFileId}`, {
+        const saveResponse = await fetch(API_ENDPOINTS.filesUpdate(currentFileId), {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content: code })
@@ -381,7 +382,7 @@ const IDEPage = () => {
 
     try {
       console.log('🚀 Executing code...')
-      const response = await fetch('http://localhost:8000/api/v1/executor/run', {
+      const response = await fetch(API_ENDPOINTS.executorRun(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -504,7 +505,7 @@ const IDEPage = () => {
         } : undefined
       }
 
-      const response = await fetch('http://localhost:8000/api/v1/tutor/ask', {
+      const response = await fetch(API_ENDPOINTS.tutorAsk(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

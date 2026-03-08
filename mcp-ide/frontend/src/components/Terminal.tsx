@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Terminal as TerminalIcon, X, Send, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { API_ENDPOINTS } from '@/lib/api-config'
 
 interface TerminalProps {
   projectId: string
@@ -48,7 +49,7 @@ const Terminal = ({ projectId, isOpen, onClose }: TerminalProps) => {
 
   const createSession = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/terminal/create', {
+      const response = await fetch(API_ENDPOINTS.terminalCreate(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ project_id: projectId })
@@ -79,7 +80,7 @@ const Terminal = ({ projectId, isOpen, onClose }: TerminalProps) => {
     setCommand('')
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/terminal/${sessionId}/execute`, {
+      const response = await fetch(API_ENDPOINTS.terminalExecute(sessionId), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ command: cmd })

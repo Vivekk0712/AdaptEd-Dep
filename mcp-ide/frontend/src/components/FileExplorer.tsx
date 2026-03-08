@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Folder, Plus, Trash2, Edit2, ChevronRight, ChevronDown, FolderPlus, Code2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { API_ENDPOINTS } from '@/lib/api-config'
 
 interface FileItem {
   id: string
@@ -152,7 +153,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
 
   const loadProjects = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/files/projects')
+      const response = await fetch(API_ENDPOINTS.filesProjects())
       const data = await response.json()
       setProjects(data.projects)
       
@@ -168,7 +169,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
   const loadFiles = async (projectId: string) => {
     try {
       console.log('Loading files for project:', projectId)
-      const response = await fetch(`http://localhost:8000/api/v1/files/projects/${projectId}/files`)
+      const response = await fetch(API_ENDPOINTS.filesProjectFiles(projectId))
       const data = await response.json()
       console.log('Files loaded:', data.files)
       setFiles(data.files)
@@ -203,7 +204,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
     console.log('Full path:', fullPath, 'Language:', language)
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/files/files', {
+      const response = await fetch(API_ENDPOINTS.filesCreate(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -247,7 +248,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
     console.log('Full folder path:', fullPath)
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/files/files', {
+      const response = await fetch(API_ENDPOINTS.filesCreate(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -284,7 +285,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
     if (!confirm('Are you sure you want to delete this file?')) return
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/files/files/${fileId}`, {
+      const response = await fetch(API_ENDPOINTS.filesDelete(fileId), {
         method: 'DELETE'
       })
 
@@ -350,7 +351,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
       // Delete all files and the folder
       for (const file of filesToDelete) {
         console.log(`🗑️ Deleting: ${file.path}`)
-        const response = await fetch(`http://localhost:8000/api/v1/files/files/${file.id}`, {
+        const response = await fetch(API_ENDPOINTS.filesDelete(file.id), {
           method: 'DELETE'
         })
         
@@ -385,7 +386,7 @@ const FileExplorer = ({ onFileSelect, currentFileId, onFileDelete }: FileExplore
     const newPath = parentFolder === '/' ? renameFileName : `${parentFolder}/${renameFileName}`
 
     try {
-      const response = await fetch(`http://localhost:8000/api/v1/files/files/${renamingFile.id}`, {
+      const response = await fetch(API_ENDPOINTS.filesUpdate(renamingFile.id), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -496,7 +497,7 @@ export function subtract(a, b) {
 
     try {
       for (const file of templateFiles) {
-        await fetch('http://localhost:8000/api/v1/files/files', {
+        await fetch(API_ENDPOINTS.filesCreate(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -71,8 +71,8 @@ sudo apt update && sudo apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs build-essential
 
-# Install Python 3.11
-sudo apt install -y python3.11 python3.11-venv python3-pip
+# Install Python (3.10+ or 3.12 works fine)
+sudo apt install -y python3 python3-venv python3-pip
 
 # Install Nginx & PM2
 sudo apt install -y nginx git
@@ -80,7 +80,7 @@ sudo npm install -g pm2
 
 # Verify installations
 node --version    # Should show v20.x
-python3.11 --version
+python3 --version # Should show 3.10+ or 3.12+
 pm2 --version
 nginx -v
 ```
@@ -158,7 +158,7 @@ bash setup-fonts.sh
 cd /home/ubuntu/adapted/backend
 
 # Create virtual environment
-python3.11 -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
@@ -169,7 +169,7 @@ pip install -r requirements.txt
 mkdir -p logs
 
 # Test it works
-python main.py
+python start.py
 # Press Ctrl+C after you see "Application startup complete"
 
 # Create PM2 config
@@ -177,8 +177,8 @@ cat > ecosystem.config.js << 'EOF'
 module.exports = {
   apps: [{
     name: 'adapted-backend',
-    script: 'venv/bin/uvicorn',
-    args: 'main:app --host 0.0.0.0 --port 8001',
+    script: 'venv/bin/python',
+    args: 'start.py',
     cwd: '/home/ubuntu/adapted/backend',
     instances: 1,
     autorestart: true,
@@ -209,7 +209,7 @@ deactivate
 cd /home/ubuntu/adapted/mcp-ide/backend
 
 # Create virtual environment
-python3.11 -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
@@ -228,8 +228,8 @@ cat > ecosystem.config.js << 'EOF'
 module.exports = {
   apps: [{
     name: 'mcp-ide-backend',
-    script: 'venv/bin/uvicorn',
-    args: 'main:app --host 0.0.0.0 --port 8000',
+    script: 'venv/bin/python',
+    args: 'main.py',
     cwd: '/home/ubuntu/adapted/mcp-ide/backend',
     instances: 1,
     autorestart: true,
